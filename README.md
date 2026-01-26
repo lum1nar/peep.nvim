@@ -11,7 +11,7 @@
 ### Lazy.nvim
 
 ```lua
-   {
+{
     "lum1nar/peep.nvim",
     opts = {
         fg_color = "#f6c177",
@@ -22,4 +22,5 @@
         { "<leader><leader>", mode = { "n", "v" }, function() require("peep").peep() end, desc = "Peep" },
     }
 }
+
 ```
