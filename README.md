@@ -11,7 +11,7 @@
 ### Lazy.nvim
 
 ```lua
-use {
+   {
     "lum1nar/peep.nvim",
     opts = {
         fg_color = "#f6c177",
