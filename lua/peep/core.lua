@@ -20,31 +20,52 @@ function M.show(config)
     local end_row = cursor_row + win_height
 
     for row = start_row, end_row do
+        local lines = vim.api.nvim_buf_get_lines(0, row - 1, row, false)
+        local line = lines[1] or "" -- avoid nil
+        local cur_line_width = #line
         if row ~= cursor_row then
             local rel = math.abs(row - cursor_row)
-            local lines = vim.api.nvim_buf_get_lines(0, row - 1, row, false)
-            local line = lines[1] or "" -- avoid nil
-            local cur_line_width = #line
+            local draw_col = cursor_col
             -- print(cur_line_width)
             local ok, mark_id
 
-            if cursor_col < 5 then
-                cursor_col = 40
+            if draw_col < 5 then
+                draw_col = 40
             end
 
-            if cur_line_width < cursor_col then
+            if cur_line_width < draw_col then
                 ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, cur_line_width, {
                     virt_text = { { tostring(rel), "Peep_hl" } },
                     virt_text_pos = "overlay"
                 })
             else
-                ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, cursor_col, {
+                ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, draw_col, {
                     virt_text = { { tostring(rel), "Peep_hl" } },
                     virt_text_pos = "overlay"
                 })
             end
             if ok then
                 table.insert(extmarks, mark_id)
+            end
+        else
+            if config.col_peep then
+                local start_col = 0
+                local end_col = cur_line_width
+
+                for col = start_col, end_col do
+                    local rel = math.abs(col - cursor_col)
+                    if rel % 10 == 0 then
+                        local ok, mark_id
+
+                        ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
+                            virt_text = { { tostring(rel), "Peep_hl" } },
+                            virt_text_pos = "overlay"
+                        })
+                        if ok then
+                            table.insert(extmarks, mark_id)
+                        end
+                    end
+                end
             end
         end
     end

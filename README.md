@@ -1,6 +1,6 @@
 # peep.nvim 👀
 
-> A quick peep at relative line numbers
+> A quick peep at relative col/row numbers
 
 <p align="center">
   <img src="assets/demo.gif" width="720" />
@@ -16,7 +16,9 @@
     opts = {
         fg_color = "#f6c177",
         bg_color = "#44415a",
-        peep_duration = 800
+        peep_duration = 800,
+        col_peep = true
+
     },
     keys = {
         { "<leader><leader>", mode = { "n", "v" }, function() require("peep").peep() end, desc = "Peep" },
