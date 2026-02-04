@@ -1,6 +1,15 @@
 local M = {}
+
 local core = require("peep.core")
+local utils = require("peep.utils")
 local config = require("peep.config")
+
+M.state = {
+    peep_buf = nil,
+    peep_win = nil,
+    is_showing = false,
+    was_visual = nil
+}
 
 M.setup = function(opts)
     opts = opts or {}
@@ -12,6 +21,7 @@ M.setup = function(opts)
 end
 
 M.peep = function()
-    core.peep(config);
+    core.peep(config, M.state);
 end
+
 return M

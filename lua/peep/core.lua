@@ -1,17 +1,19 @@
+local utils = require("peep.utils")
+
 local M = {}
 local ns_id = vim.api.nvim_create_namespace("Peep_ns")
 local extmarks = {}
 
-function M.show(config)
+function M.show(config, state)
+    -- show
+    utils.win_open(state)
     vim.api.nvim_set_hl(0, "Peep_hl", { fg = config.fg_color, bg = config.bg_color, bold = true })
+    vim.api.nvim_set_hl(0, "subPeep_hl", { fg = "#f6c177", bg = "#44415a", bold = true })
+    vim.api.nvim_set_hl(0, "aux", { fg = "#797593", bold = true })
     local bufnr = vim.api.nvim_get_current_buf()
     local cursor = vim.api.nvim_win_get_cursor(0)
     local cursor_row, cursor_col = cursor[1], cursor[2]
 
-    -- In case someone triggers more than once during timer
-    for _, id in ipairs(extmarks) do
-        pcall(vim.api.nvim_buf_del_extmark, bufnr, ns_id, id)
-    end
     extmarks = {}
 
     local win_height = vim.api.nvim_win_get_height(0)
@@ -25,25 +27,47 @@ function M.show(config)
         local cur_line_width = #line
         if row ~= cursor_row then
             local rel = math.abs(row - cursor_row)
-            local draw_col = cursor_col
             -- print(cur_line_width)
-            local ok, mark_id
+            local ok, ok2, ok3, mark_id, mark_id2, mark_id3
+            --- search for the last non-space char
+            -- print(row, #line)
+            local last_char = line:find("%s*$") - 1
+            -- vim.notify(tostring(last_char))
+            -- print(last_char)
 
-            if draw_col < 5 then
-                draw_col = 40
-            end
+            ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, cursor_col, {
+                virt_text = { { tostring(rel), "Peep_hl" } },
+                virt_text_pos = "overlay"
+            })
 
-            if cur_line_width < draw_col then
-                ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, cur_line_width, {
-                    virt_text = { { tostring(rel), "Peep_hl" } },
+            if last_char > 1 and last_char < cursor_col then
+                ok2, mark_id2 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, last_char, {
+                    virt_text = { { tostring(rel), "subPeep_hl" } },
                     virt_text_pos = "overlay"
                 })
-            else
-                ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, draw_col, {
-                    virt_text = { { tostring(rel), "Peep_hl" } },
-                    virt_text_pos = "overlay"
-                })
+                if ok2 then
+                    table.insert(extmarks, mark_id2)
+                end
+
+                local offset = 1
+
+                if rel >= 10 then
+                    offset = 2
+                elseif rel >= 100 then
+                    offset = 3
+                end
+
+                for col = last_char + offset, cursor_col - 1 do
+                    ok3, mark_id3 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
+                        virt_text = { { '.', "aux" } },
+                        virt_text_pos = "overlay"
+                    })
+                    if ok3 then
+                        table.insert(extmarks, mark_id3)
+                    end
+                end
             end
+
             if ok then
                 table.insert(extmarks, mark_id)
             end
@@ -71,19 +95,24 @@ function M.show(config)
     end
 end
 
-function M.clear()
+function M.clear(state)
     local bufnr = vim.api.nvim_get_current_buf()
     for _, id in ipairs(extmarks) do
         pcall(vim.api.nvim_buf_del_extmark, bufnr, ns_id, id)
     end
     extmarks = {}
+    utils.win_close(state)
 end
 
-function M.peep(config)
-    M.show(config)
+function M.peep(config, state)
+    if state.is_showing then
+        return
+    end
+
+    M.show(config, state)
     local timer = vim.loop.new_timer()
     timer:start(config.peep_duration, 0, vim.schedule_wrap(function()
-        M.clear()
+        M.clear(state)
         timer:stop()
         timer:close()
     end))

@@ -1,7 +1,7 @@
 local config = {
-    fg_color = "#f6c177",
-    bg_color = "#44415a",
-    peep_duration = 800,
+    fg_color = "#A72703",
+    bg_color = "#FCB53B",
+    peep_duration = 700,
     col_peep = true
 }
 return config
