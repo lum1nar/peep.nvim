@@ -8,11 +8,12 @@
 
 ## Features ✨
 
-- Display relative numbers (rel num) in the same column as the cursor for quick navigation
+- Display relative numbers in the same column as the cursor for quick navigation
 - Each label comes with a sub-label for easier reading and orientation
 - Supports both Normal and Visual modes
 - Minimal and clean design to avoid visual clutter
 - Can be triggered with `d`, `y`, `c` (WIP)
+- Customizable icon and labels
 
 ## Installation
 
