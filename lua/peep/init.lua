@@ -21,7 +21,7 @@ M.setup = function(opts)
 end
 
 M.peep = function()
-    core.peep(config, M.state);
+    core.peep(config, M.state)
 end
 
 return M

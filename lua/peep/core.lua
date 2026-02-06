@@ -7,9 +7,11 @@ local extmarks = {}
 function M.show(config, state)
     -- show
     utils.win_open(state)
-    vim.api.nvim_set_hl(0, "Peep_hl", { fg = config.fg_color, bg = config.bg_color, bold = true })
-    vim.api.nvim_set_hl(0, "subPeep_hl", { fg = "#f6c177", bg = "#44415a", bold = true })
-    vim.api.nvim_set_hl(0, "aux", { fg = "#797593", bold = true })
+    vim.api.nvim_set_hl(0, "Main", { fg = config.colors.label_main.fg, bg = config.colors.label_main.bg, bold = true })
+    vim.api.nvim_set_hl(0, "Sub",
+        { fg = config.colors.label_sub.fg, bg = config.colors.label_sub.bg, bold = true })
+    vim.api.nvim_set_hl(0, "Aux", { fg = config.colors.line_aux.fg, bold = true })
+
     local bufnr = vim.api.nvim_get_current_buf()
     local cursor = vim.api.nvim_win_get_cursor(0)
     local cursor_row, cursor_col = cursor[1], cursor[2]
@@ -28,51 +30,90 @@ function M.show(config, state)
         if row ~= cursor_row then
             local rel = math.abs(row - cursor_row)
             -- print(cur_line_width)
-            local ok, ok2, ok3, mark_id, mark_id2, mark_id3
+            local ok, ok2, ok3, ok4, mark_id, mark_id2, mark_id3, mark_id4
             --- search for the last non-space char
             -- print(row, #line)
             local last_char = line:find("%s*$") - 1
+            local first_char = (line:find("%S") or 0) - 1
             -- vim.notify(tostring(last_char))
             -- print(last_char)
+            -- print(row, first_char)
+            local label_width = 1
 
+            if rel >= 10 then
+                label_width = 2
+            elseif rel >= 100 then
+                label_width = 3
+            end
+
+            -- Vertical label
             ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, cursor_col, {
-                virt_text = { { tostring(rel), "Peep_hl" } },
+                virt_text = { { tostring(rel), "Main" } },
                 virt_text_pos = "overlay"
             })
 
-            if last_char > 1 and last_char < cursor_col then
+            if last_char > 1 and last_char + label_width < cursor_col then
                 ok2, mark_id2 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, last_char, {
-                    virt_text = { { tostring(rel), "subPeep_hl" } },
+                    virt_text = { { tostring(rel), "Sub" } },
                     virt_text_pos = "overlay"
                 })
                 if ok2 then
                     table.insert(extmarks, mark_id2)
                 end
 
-                local offset = 1
-
-                if rel >= 10 then
-                    offset = 2
-                elseif rel >= 100 then
-                    offset = 3
-                end
-
-                for col = last_char + offset, cursor_col - 1 do
-                    ok3, mark_id3 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
-                        virt_text = { { '.', "aux" } },
-                        virt_text_pos = "overlay"
-                    })
-                    if ok3 then
-                        table.insert(extmarks, mark_id3)
+                -- auxline from last char to cursor_col
+                if cursor_col >= last_char then
+                    for col = last_char + label_width, cursor_col - 1 do
+                        ok3, mark_id3 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
+                            virt_text = { { config.peep.auxline_icon, "aux" } },
+                            virt_text_pos = "overlay"
+                        })
+                        if ok3 then
+                            table.insert(extmarks, mark_id3)
+                        end
                     end
                 end
+            else
+                if cursor_col + label_width < first_char and first_char > 1 then
+                    ok2, mark_id2 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, first_char, {
+                        virt_text = { { tostring(rel), "Sub" } },
+                        virt_text_pos = "overlay"
+                    })
+                    if ok2 then
+                        table.insert(extmarks, mark_id2)
+                    end
+                    -- auxline from line_start to first_char
+                    -- print(cursor_col, first_char)
+                    if cursor_col <= first_char then
+                        -- vim.notify("TEST")
+                        for col = cursor_col + label_width, first_char - 1 do
+                            ok3, mark_id3 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
+                                virt_text = { { config.peep.auxline_icon, "aux" } },
+                                virt_text_pos = "overlay"
+                            })
+                            if ok3 then
+                                table.insert(extmarks, mark_id3)
+                            end
+                        end
+                    end
+                end
+                -- if first_char + label_width < last_char - label_width then
+                --     ok4, mark_id4 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1,
+                --         math.floor((first_char + last_char) / 2), {
+                --             virt_text = { { tostring(rel), "subPeep_hl" } },
+                --             virt_text_pos = "overlay"
+                --         })
+                --     if ok3 then
+                --         table.insert(extmarks, mark_id4)
+                --     end
+                -- end
             end
 
             if ok then
                 table.insert(extmarks, mark_id)
             end
         else
-            if config.col_peep then
+            if config.peep.column then
                 local start_col = 0
                 local end_col = cur_line_width
 
@@ -82,7 +123,7 @@ function M.show(config, state)
                         local ok, mark_id
 
                         ok, mark_id = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1, col, {
-                            virt_text = { { tostring(rel), "Peep_hl" } },
+                            virt_text = { { tostring(rel), "Main" } },
                             virt_text_pos = "overlay"
                         })
                         if ok then
@@ -111,7 +152,7 @@ function M.peep(config, state)
 
     M.show(config, state)
     local timer = vim.loop.new_timer()
-    timer:start(config.peep_duration, 0, vim.schedule_wrap(function()
+    timer:start(config.peep.duration, 0, vim.schedule_wrap(function()
         M.clear(state)
         timer:stop()
         timer:close()
