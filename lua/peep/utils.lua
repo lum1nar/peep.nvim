@@ -70,15 +70,42 @@ U.win_open = function(state)
     state.src_buf = vim.api.nvim_win_get_buf(state.src_win)
     local topline = vim.fn.line("w0", state.src_win)
 
+    local win_width = vim.api.nvim_win_get_width(state.src_win)
+    local win_height = vim.api.nvim_win_get_height(state.src_win)
+
     state.peep_buf = clone_buffer(state, state.src_buf)
-    local cfg = vim.api.nvim_win_get_config(state.src_win)
+    local peep_cfg = {
+        relative = "win",    -- 相對於 src_win
+        win = state.src_win, -- 指定要覆蓋的 window
+        width = win_width,
+        height = win_height,
+        row = 0,
+        col = 0,
+        style = "minimal",
+        focusable = true,
+        border = "none",
+    }
+
+    -- local cfg = vim.api.nvim_win_get_config(state.src_win)
+    --
+    -- for index, value in pairs(cfg) do
+    --     print(index, value)
+    -- end
 
     local cursor = vim.api.nvim_win_get_cursor(state.src_win)
 
     state.peep_win = vim.api.nvim_open_win(
         state.peep_buf,
         true,
-        cfg
+        peep_cfg
+    )
+
+    -- show number
+    vim.api.nvim_win_set_option(state.peep_win, "number", true)
+
+    -- same signcolumn
+    vim.api.nvim_win_set_option(state.peep_win, "signcolumn",
+        vim.api.nvim_win_get_option(state.src_win, "signcolumn")
     )
 
     -- move to the same cursor position as the one in src_buf
