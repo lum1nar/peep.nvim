@@ -1,15 +1,19 @@
 local U = {};
 
-local function clone_buffer(src_buf)
+local function clone_buffer(state, src_buf)
     local win_width = vim.o.columns
 
     local win = vim.api.nvim_get_current_win()
-    local topline = vim.fn.line("w0", win)
-    local botline = vim.fn.line("w$", win)
+    state.topline = vim.fn.line("w0", win)
+    state.botline = vim.fn.line("w$", win)
     -- print(top .. "-" .. bot)
 
     local new_buf = vim.api.nvim_create_buf(false, true)
-    local lines = vim.api.nvim_buf_get_lines(src_buf, topline - 1, botline, false)
+    state.last_buf = vim.api.nvim_create_buf(false, true)
+    local lines = vim.api.nvim_buf_get_lines(src_buf, state.topline - 1, state.botline, false)
+
+    -- make a copy befor padding
+    vim.api.nvim_buf_set_lines(state.last_buf, 0, -1, false, lines)
 
     for i, line in ipairs(lines) do
         lines[i] = lines[i] .. string.rep(" ", win_width - #lines[i])
@@ -37,9 +41,10 @@ U.win_close = function(state)
     -- Record the last cursor pos in peep_win
     local peep_cursor = vim.api.nvim_win_get_cursor(state.peep_win)
 
+    -- set is_showing to false first to prevent prevent M.clear() from triggering twice on Winclose(vim.api.nvim_win_close)
+    state.is_showing = false
+
     vim.api.nvim_win_close(state.peep_win, true)
-    state.peep_win = nil
-    state.peep_buf = nil
 
     -- reposition the cursor after closing peep_win
     local win = vim.api.nvim_get_current_win()
@@ -51,11 +56,7 @@ U.win_close = function(state)
     end
 
     -- reposition the cursor after closing peep_win
-    vim.api.nvim_win_set_cursor(0, { topline + peep_cursor[1] - 1, peep_cursor[2] })
-
-    -- reset state
-    state.is_showing = false
-    state.was_visual = false
+    vim.api.nvim_win_set_cursor(state.src_win, { topline + peep_cursor[1] - 1, peep_cursor[2] })
 end
 
 U.win_open = function(state)
@@ -65,14 +66,14 @@ U.win_open = function(state)
         vim.cmd([[ execute "normal! \<ESC>" ]])
     end
 
-    local src_win = vim.api.nvim_get_current_win()
-    local src_buf = vim.api.nvim_win_get_buf(src_win)
-    local topline = vim.fn.line("w0", src_win)
+    state.src_win = vim.api.nvim_get_current_win()
+    state.src_buf = vim.api.nvim_win_get_buf(state.src_win)
+    local topline = vim.fn.line("w0", state.src_win)
 
-    state.peep_buf = clone_buffer(src_buf)
-    local cfg = vim.api.nvim_win_get_config(src_win)
+    state.peep_buf = clone_buffer(state, state.src_buf)
+    local cfg = vim.api.nvim_win_get_config(state.src_win)
 
-    local cursor = vim.api.nvim_win_get_cursor(0)
+    local cursor = vim.api.nvim_win_get_cursor(state.src_win)
 
     state.peep_win = vim.api.nvim_open_win(
         state.peep_buf,
@@ -82,7 +83,11 @@ U.win_open = function(state)
 
     -- move to the same cursor position as the one in src_buf
     vim.api.nvim_win_set_cursor(state.peep_win, { cursor[1] - topline + 1, cursor[2] })
-    state.is_showing = true
+end
+
+U.log = function(state, key)
+    table.insert(state.keylog, key)
+    -- print("pressed", key)
 end
 
 return U

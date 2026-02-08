@@ -10,13 +10,20 @@ local config = {
         },
         line_aux = {
             fg = "#9893a5",
+        },
+        line_preview = {
+            bg = "#cecacd"
         }
+
     },
 
     peep = {
         duration = 700,
         column = false,
-        auxline_icon = "·"
+        auxline_icon = "·",
+        key_trigger = true,
+        trigger_keys = { "y", "d", "c", "v", "V" },
+        line_preview = false
     }
 }
 return config
