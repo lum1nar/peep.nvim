@@ -103,10 +103,28 @@ U.win_open = function(state)
     -- show number
     vim.api.nvim_win_set_option(state.peep_win, "number", true)
 
-    -- same signcolumn
-    vim.api.nvim_win_set_option(state.peep_win, "signcolumn",
-        vim.api.nvim_win_get_option(state.src_win, "signcolumn")
-    )
+    -- try to clone identical buffer config
+    local buf_options = {
+        "tabstop", "shiftwidth", "expandtab",
+        "textwidth", "filetype", "syntax",
+    }
+
+    for _, opt in ipairs(buf_options) do
+        vim.api.nvim_buf_set_option(state.peep_buf, opt,
+            vim.api.nvim_buf_get_option(state.src_buf, opt))
+    end
+
+    -- try to clone same win config
+    local win_options = {
+        "number", "relativenumber", "cursorline",
+        "wrap", "linebreak", "breakindent",
+        "signcolumn", "colorcolumn", "foldenable",
+    }
+
+    for _, opt in ipairs(win_options) do
+        vim.api.nvim_win_set_option(state.peep_win, opt,
+            vim.api.nvim_win_get_option(state.src_win, opt))
+    end
 
     -- move to the same cursor position as the one in src_buf
     vim.api.nvim_win_set_cursor(state.peep_win, { cursor[1] - topline + 1, cursor[2] })

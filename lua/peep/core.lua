@@ -81,7 +81,7 @@ function M.show(config, state) -- show
                     end
                 end
             else
-                if cursor_col + label_width < first_char and first_char > 1 then
+                if cursor_col + label_width + 3 < first_char and first_char > 1 then
                     ok2, mark_id2 = pcall(vim.api.nvim_buf_set_extmark, bufnr, ns_id, row - 1,
                         first_char - label_width, {
                             virt_text = { { tostring(rel), "Sub" } },
