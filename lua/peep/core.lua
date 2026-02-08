@@ -457,6 +457,17 @@ function M.toggle(config, state)
             silent = true,
         })
     end
+
+    -- leader key
+    vim.keymap.set({ "n", "v" }, "<leader>", function()
+        utils.log(state, tostring("<leader>"))
+        return M.finish(state)
+    end, {
+        buffer = state.peep_buf,
+        expr = false,
+        nowait = true,
+        silent = true,
+    })
 end
 
 return M

@@ -32,7 +32,7 @@ M.setup = function(opts)
                 vim.schedule(function()
                     core.toggle(config, M.state)
                 end)
-                return false
+                return ""
             end, { expr = false, silent = true })
         end
     end
