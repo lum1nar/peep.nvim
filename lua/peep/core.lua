@@ -233,7 +233,7 @@ function M.toggle(config, state)
 
     local finish_keys = {
         -- basic movement
-        "h", "j", "k", "l",
+        "h", "j", "k", "l", "<C-d>", "<C-u>",
 
         -- word motions
         "w", "W",
