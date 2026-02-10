@@ -2,16 +2,9 @@
 
 > A quick peep at relative col/row numbers
 
-<table>
-  <tr>
-    <th>Quick Peek</th>
-  </tr>
-  <tr>
-    <td>
-      <img src="assets/demo.gif" />
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="assets/demo.gif" width="720" />
+</p>
 
 ## Features ✨
 
@@ -30,28 +23,23 @@
 ```lua
 {
     "lum1nar/peep.nvim",
-    opts = {
-        colors = {
-            label_main = {
-                fg = "#A72703",
-                bg = "#FCB53B",
+    config = function()
+        require("peep").setup({
+            colors = {
+                label_main = { fg = "#A72703", bg = "#FCB53B", },
+                label_sub = { fg = "#FCB53B", bg = "#44415a", },
+                line_aux = { fg = "#9893a5", },
             },
-            label_sub = {
-                fg = "#FCB53B",
-                bg = "#44415a",
-            },
-            line_aux = {
-                fg = "#9893a5",
+            peep = {
+                duration = 700,
+                column = false,
+                auxline_icon = "·",
+                key_trigger = true,
+                trigger_keys = { "y", "d", "c", "v", "V" },
             }
-        },
-        peep = {
-            duration = 700,
-            column = false,
-            auxline_icon = "·"
-        }
-    },
-    keys = {
-        { "<leader><leader>", mode = { "n", "v" }, function() require("peep").peep() end, desc = "Peep" },
-    }
+        })
+        vim.keymap.set({ "n", "v" }, "<leader><leader>", function() require("peep").peep() end, { desc = "Peep" })
+    end
 }
+
 ```
