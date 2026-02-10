@@ -2,18 +2,26 @@
 
 > A quick peep at relative col/row numbers
 
-<p align="center">
-  <img src="assets/demo.gif" width="720" />
-</p>
+<table>
+  <tr>
+    <th>Quick Peek</th>
+  </tr>
+  <tr>
+    <td>
+      <img src="assets/demo.gif" />
+    </td>
+  </tr>
+</table>
 
 ## Features ✨
 
-- Display relative numbers in the same column as the cursor for quick navigation
-- Each label comes with a sub-label for easier reading and orientation
-- Supports both Normal and Visual modes
-- Minimal and clean design to avoid visual clutter
-- Can be triggered with `d`, `y`, `c` (WIP)
-- Customizable icon and labels
+- 👁 Peek relative numbers in the same column as the cursor
+- 🏷 Main + sub labels for easier orientation
+- 🎯 Works in Normal & Visual modes
+- ⚡ Optional triggers for d, y, c
+- 🟦 Optional Column Peeping
+- 👀 Optional Line Preview
+- 🎨 Customizable icon and labels
 
 ## Installation
 

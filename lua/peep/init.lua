@@ -1,21 +1,8 @@
 local M = {}
 
-local core = require("peep.core")
-local utils = require("peep.utils")
 local config = require("peep.config")
-
-M.state = {
-    src_buf = nil,
-    src_win = nil,
-    peep_buf = nil,
-    peep_win = nil,
-    is_showing = false,
-    was_visual = false,
-    topline = nil,
-    botline = nil,
-    last_buf = nil,
-    keylog = {},
-}
+local state = require("peep.state")
+local peep = require("peep.peep")
 
 M.setup = function(opts)
     opts = opts or {}
@@ -28,22 +15,23 @@ M.setup = function(opts)
     if config.peep.key_trigger then
         for idx, key in ipairs(config.peep.trigger_keys) do
             vim.keymap.set("n", key, function()
-                utils.log(M.state, key)
+                -- if M.state.in_operator then
+                --     return
+                -- end
                 vim.schedule(function()
-                    core.toggle(config, M.state)
+                    peep.open()
                 end)
-                return ""
-            end, { expr = false, silent = true })
+
+                state.in_op = true
+                -- M.state.operator = key
+                return key
+            end, { expr = true, silent = true })
         end
     end
 end
 
 M.peep = function()
-    core.peep(config, M.state, config.peep.duration)
-end
-
-M.toggle = function()
-    core.toggle(config, M.state)
+    peep.peep()
 end
 
 return M
