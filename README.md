@@ -11,10 +11,10 @@
 - 👁 Peek relative numbers in the same column as the cursor
 - 🏷 Main + sub labels for easier orientation
 - 🎯 Works in Normal & Visual modes
-- ⚡ Optional triggers for d, y, c
-- 🟦 Optional Column Peeping
-- 👀 Optional Line Preview
 - 🎨 Customizable icon and labels
+- ⚡ Optional triggers for d, y, c, v, V
+- 🟦 Optional Column Peeping
+- 👀 Optional Line Preview (WIP)
 
 ## Installation
 
@@ -41,5 +41,4 @@
         vim.keymap.set({ "n", "v" }, "<leader><leader>", function() require("peep").peep() end, { desc = "Peep" })
     end
 }
-
 ```
