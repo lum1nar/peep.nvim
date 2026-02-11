@@ -124,7 +124,7 @@ function M.show() -- show
     vim.api.nvim_set_hl(0, "Main", { fg = config.colors.label_main.fg, bg = config.colors.label_main.bg, bold = true })
     vim.api.nvim_set_hl(0, "Sub", { fg = config.colors.label_sub.fg, bg = config.colors.label_sub.bg, bold = true })
     vim.api.nvim_set_hl(0, "Aux", { fg = config.colors.line_aux.fg, bold = true })
-    vim.api.nvim_set_hl(0, "Preview", { fg = config.colors.line_preview.bg, bold = true, })
+    vim.api.nvim_set_hl(0, "Preview", { fg = config.colors.line_preview.fg, bold = true, })
 
     -- vim.api.nvim_set_hl(0, "Preview", { bg = config.colors.line_preview.bg })
 
