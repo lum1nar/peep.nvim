@@ -2,9 +2,10 @@ local M = {}
 
 local config = require("peep.config")
 local state = require("peep.state")
-local peep = require("peep.peep")
+local ui = require("peep.ui")
 
-M.setup = function(opts)
+---@param opts table|nil
+function M.setup(opts)
     opts = opts or {}
 
     -- merge table
@@ -15,23 +16,38 @@ M.setup = function(opts)
     if config.peep.key_trigger then
         for idx, key in ipairs(config.peep.trigger_keys) do
             vim.keymap.set("n", key, function()
-                -- if M.state.in_operator then
-                --     return
-                -- end
                 vim.schedule(function()
-                    peep.open()
+                    M.open()
                 end)
 
                 state.in_op = true
-                -- M.state.operator = key
                 return key
             end, { expr = true, silent = true })
         end
     end
 end
 
-M.peep = function()
-    peep.peep()
+function M.open()
+    if state.is_showing then return end
+    state.is_showing = true
+    ui.show()
+end
+
+function M.close()
+    if not state.is_showing then return end
+    state.is_showing = false
+    ui.clear()
+end
+
+function M.peep()
+    ui.show()
+
+    local timer = vim.loop.new_timer()
+    timer:start(config.peep.duration, 0, vim.schedule_wrap(function()
+        ui.clear()
+        timer:stop()
+        timer:close()
+    end))
 end
 
 return M
