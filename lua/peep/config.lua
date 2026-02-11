@@ -3,7 +3,7 @@ local config = {
         label_main = { fg = "#A72703", bg = "#FCB53B", },
         label_sub = { fg = "#FCB53B", bg = "#44415a", },
         line_aux = { fg = "#9893a5", },
-        line_preview = { bg = "#7aa2f7" }
+        line_preview = { fg = "#7aa2f7" }
     },
 
     peep = {
