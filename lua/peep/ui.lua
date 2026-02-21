@@ -67,7 +67,7 @@ local function attach_key_handler()
         -- print("ns", extmark_ns)
         -- print("buf", state.src_buf)
         -- print("clear from", info.row - repeat_value, "to", info.row + repeat_value)
-        vim.api.nvim_buf_clear_namespace(state.src_buf, extmark_ns, start_line, end_line + 1)
+        vim.api.nvim_buf_clear_namespace(state.src_buf, extmark_ns, 0, -1)
         vim.api.nvim_buf_clear_namespace(state.src_buf, preview_ns, 0, -1)
 
         for i = 1, repeat_value do
